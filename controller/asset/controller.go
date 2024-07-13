@@ -104,11 +104,6 @@ func (ctrl *Controller) UpdateAsset(c *gin.Context) {
 		return
 	}
 
-	if _, err := ctrl.assetSvc.GetAssetByID(c.Request.Context(), ID); err != nil {
-		log.Println(logPrefix+"error when get asset by ID: "+ID, "err:", err.Error())
-		c.JSON(http.StatusBadRequest, ResponseError(err))
-	}
-
 	assetData, err := req.toAsset()
 	if err != nil {
 		log.Println(logPrefix+"error when convert to asset request", err.Error())

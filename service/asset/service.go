@@ -1,6 +1,9 @@
 package asset
 
-import "context"
+import (
+	"context"
+	"log"
+)
 
 type (
 	Service interface {
@@ -25,17 +28,27 @@ func (s *service) CreateNewAsset(ctx context.Context, data Asset) error {
 }
 
 func (s *service) GetAllAssets(ctx context.Context) ([]Asset, error) {
-	return nil, nil
+	return s.repo.GetMany(ctx)
 }
 
 func (s *service) GetAssetByID(ctx context.Context, ID string) (*Asset, error) {
-	return nil, nil
+	return s.repo.GetByID(ctx, ID)
 }
 
 func (s *service) UpdateAsset(ctx context.Context, ID string, data Asset) error {
-	return nil
+	if _, err := s.repo.GetByID(ctx, ID); err != nil {
+		log.Println("error when get asset by ID", ID, "err: ", err.Error())
+		return err
+	}
+
+	return s.repo.UpdateByID(ctx, ID, data)
 }
 
 func (s *service) DeleteAsset(ctx context.Context, ID string) error {
-	return nil
+	if _, err := s.repo.GetByID(ctx, ID); err != nil {
+		log.Println("error when get asset by ID", ID, "err: ", err.Error())
+		return err
+	}
+
+	return s.repo.DeleteOne(ctx, ID)
 }
