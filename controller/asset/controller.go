@@ -1,6 +1,7 @@
 package asset
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/adesupraptolaia/assetfindr/service/asset"
@@ -21,32 +22,120 @@ func NewAssetController(assetSvc asset.Service) *Controller {
 var validate = validator.New()
 
 func (ctrl *Controller) CreateNewAsset(c *gin.Context) {
-	var req CreateNewAssetRequest
+	var (
+		req       CreateNewAssetRequest
+		logPrefix = "CreateNewAsset, err: "
+	)
 
 	if err := c.BindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		log.Println(logPrefix+"error when bind request", err.Error())
+		c.JSON(http.StatusBadRequest, ResponseError(err))
+		return
 	}
 
 	if err := validate.Struct(req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"validation_error": err.Error()})
+		log.Println(logPrefix+"error when validate request", err.Error())
+		c.JSON(http.StatusBadRequest, ResponseError(err))
 		return
 	}
 
 	assetData, err := req.toAsset()
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"validation_error": err.Error()})
+		log.Println(logPrefix+"error when convert to asset request", err.Error())
+		c.JSON(http.StatusBadRequest, ResponseError(err))
 		return
 	}
 
 	if err := ctrl.assetSvc.CreateNewAsset(c.Request.Context(), assetData); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error when create new asset": err.Error()})
+		log.Println(logPrefix+"error when create new asset", err.Error())
+		c.JSON(http.StatusInternalServerError, ResponseError(err))
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"status": "success"})
+	c.JSON(http.StatusCreated, ResponseSuccess(nil))
 }
 
-func (ctrl *Controller) GetAllAssets(c *gin.Context) {}
-func (ctrl *Controller) GetAssetByID(c *gin.Context) {}
-func (ctrl *Controller) UpdateAsset(c *gin.Context)  {}
-func (ctrl *Controller) DeleteAsset(c *gin.Context)  {}
+func (ctrl *Controller) GetAllAssets(c *gin.Context) {
+	var (
+		logPrefix = "GetAllAssets, err: "
+	)
+
+	assets, err := ctrl.assetSvc.GetAllAssets(c.Request.Context())
+	if err != nil {
+		log.Println(logPrefix+"error when get all assets", err.Error())
+		c.JSON(http.StatusInternalServerError, ResponseError(err))
+		return
+	}
+
+	c.JSON(http.StatusOK, ResponseSuccess(assets))
+}
+
+func (ctrl *Controller) GetAssetByID(c *gin.Context) {
+	var (
+		logPrefix = "GetAssetByID, err: "
+		ID        = c.Param("id")
+	)
+
+	asset, err := ctrl.assetSvc.GetAssetByID(c.Request.Context(), ID)
+	if err != nil {
+		log.Println(logPrefix+"error when get asset by id:"+ID, "err: ", err)
+		c.JSON(http.StatusInternalServerError, ResponseError(err))
+	}
+
+	c.JSON(http.StatusOK, ResponseSuccess(asset))
+}
+
+func (ctrl *Controller) UpdateAsset(c *gin.Context) {
+	var (
+		req       CreateNewAssetRequest
+		logPrefix = "CreateNewAsset, err: "
+		ID        = c.Param("id")
+	)
+
+	if err := c.BindJSON(&req); err != nil {
+		log.Println(logPrefix+"error when bind request", err.Error())
+		c.JSON(http.StatusBadRequest, ResponseError(err))
+		return
+	}
+
+	if err := validate.Struct(req); err != nil {
+		log.Println(logPrefix+"error when validate request", err.Error())
+		c.JSON(http.StatusBadRequest, ResponseError(err))
+		return
+	}
+
+	if _, err := ctrl.assetSvc.GetAssetByID(c.Request.Context(), ID); err != nil {
+		log.Println(logPrefix+"error when get asset by ID: "+ID, "err:", err.Error())
+		c.JSON(http.StatusBadRequest, ResponseError(err))
+	}
+
+	assetData, err := req.toAsset()
+	if err != nil {
+		log.Println(logPrefix+"error when convert to asset request", err.Error())
+		c.JSON(http.StatusBadRequest, ResponseError(err))
+		return
+	}
+
+	if err := ctrl.assetSvc.UpdateAsset(c.Request.Context(), ID, assetData); err != nil {
+		log.Println(logPrefix+"error when create new asset", err.Error())
+		c.JSON(http.StatusInternalServerError, ResponseError(err))
+		return
+	}
+
+	c.JSON(http.StatusCreated, ResponseSuccess(nil))
+}
+
+func (ctrl *Controller) DeleteAsset(c *gin.Context) {
+	var (
+		logPrefix = "DeleteAsset, err: "
+		ID        = c.Param("id")
+	)
+
+	if err := ctrl.assetSvc.DeleteAsset(c.Request.Context(), ID); err != nil {
+		log.Println(logPrefix+"error when delete asset by ID"+ID, "err:", err.Error())
+		c.JSON(http.StatusInternalServerError, ResponseError(err))
+		return
+	}
+
+	c.JSON(http.StatusOK, ResponseSuccess(nil))
+}
