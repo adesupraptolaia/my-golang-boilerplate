@@ -36,6 +36,10 @@ func (r *Repository) GetByID(ctx context.Context, ID string) (*asset.Asset, erro
 		return nil, err
 	}
 
+	if result.ID == "" {
+		return nil, asset.ErrAssetNotFound
+	}
+
 	return &result, nil
 }
 
