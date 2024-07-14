@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/adesupraptolaia/assetfindr/config"
 	"github.com/adesupraptolaia/assetfindr/controller"
 	"github.com/adesupraptolaia/assetfindr/controller/asset"
 	assetService "github.com/adesupraptolaia/assetfindr/service/asset"
@@ -17,10 +19,20 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 func main() {
-	db, err := gorm.Open(postgres.Open("host=localhost user=user password=password dbname=asset port=5432 sslmode=disable"), &gorm.Config{
+	cfg := config.GetConfig()
+
+	db, err := gorm.Open(postgres.Open(fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		cfg.PostgresHost,
+		cfg.PostgresUsername,
+		cfg.PostgresPassword,
+		cfg.PostgresDBName,
+		cfg.PostgresPort,
+	)), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {

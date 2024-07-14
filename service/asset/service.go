@@ -2,6 +2,7 @@ package asset
 
 import (
 	"context"
+	"errors"
 	"log"
 )
 
@@ -36,18 +37,26 @@ func (s *service) GetAssetByID(ctx context.Context, ID string) (*Asset, error) {
 }
 
 func (s *service) UpdateAsset(ctx context.Context, ID string, data Asset) error {
-	if _, err := s.repo.GetByID(ctx, ID); err != nil {
+	if data, err := s.repo.GetByID(ctx, ID); err != nil {
 		log.Println("error when get asset by ID", ID, "err: ", err.Error())
 		return err
+	} else if data == nil {
+		log.Println("asset not found")
+		return errors.New("not found")
 	}
 
 	return s.repo.UpdateByID(ctx, ID, data)
 }
 
 func (s *service) DeleteAsset(ctx context.Context, ID string) error {
-	if _, err := s.repo.GetByID(ctx, ID); err != nil {
+	data, err := s.repo.GetByID(ctx, ID)
+
+	if err != nil {
 		log.Println("error when get asset by ID", ID, "err: ", err.Error())
 		return err
+	} else if data == nil {
+		log.Println("asset not found")
+		return errors.New("not found")
 	}
 
 	return s.repo.DeleteOne(ctx, ID)
