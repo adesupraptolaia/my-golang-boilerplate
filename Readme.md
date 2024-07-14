@@ -44,3 +44,9 @@ Simple Rest API to manage asset
 ```bash
 > make test
 ```
+
+### Documentation
+https://documenter.getpostman.com/view/34627842/2sA3kPoPWQ
+
+### Postman Collection
+https://elements.getpostman.com/redirect?entityId=34627842-001cd148-61c6-4a2d-93c6-69eaa2e87662&entityType=collection
