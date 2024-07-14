@@ -42,11 +42,11 @@ func main() {
 	defer func() {
 		sqlDB, err := db.DB()
 		if err != nil {
-			log.Fatalf("failed to get sqlDB from gorm: %v", err)
+			log.Fatalf("failed to get sqlDB from gorm: %s", err.Error())
 		}
 
 		if err := sqlDB.Close(); err != nil {
-			log.Fatalf("failed to close database connection: %v", err)
+			log.Fatalf("failed to close database connection: %s", err.Error())
 		}
 
 		log.Println("DB disconnected")
@@ -61,13 +61,14 @@ func main() {
 	controller.RegisterRoute(router, ctrl)
 
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    ":" + cfg.PORT,
 		Handler: router,
 	}
 
 	go func() {
+		log.Printf("http server listening to %s...\n", srv.Addr)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatal("Failed to start the server", err)
+			log.Fatal("Failed to start the server", err.Error())
 		}
 	}()
 
@@ -82,7 +83,7 @@ func main() {
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server Shutdown:", err)
+		log.Fatal("Server Shutdown:", err.Error())
 	}
 
 	select {

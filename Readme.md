@@ -5,12 +5,18 @@ Simple Rest API to manage asset
 
 ### Prerequisites
 - Install [golang](https://golang.org/doc/install)
-- Install [postgresql](https://www.postgresql.org/download/) or use [docker](https://hub.docker.com/_/postgres)
+- Install [postgresql](https://www.postgresql.org/download/) or use [docker](https://hub.docker.com/_/postgres).
 - Install [golang-migrate](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate#installation)
 - Install [mockery](https://vektra.github.io/mockery/latest/installation/)
-- Install [golangci-lint](https://golangci-lint.run/usage/install/)
+
+### Install PostgreSQL (using docker)
+```bash
+> make install-postgres
+```
+
 
 ### Run DB Migration
+
 ```bash
 > cp config/.env.example config/.env
 > make run-migration 
@@ -19,6 +25,22 @@ Simple Rest API to manage asset
 ### Run on Your Local
 
 ```bash
+# update your env on config/.env
 > cp config/.env.example config/.env
-> make run
+
+# set enviroment variable 
+> set -a && source config/.env && set +a
+
+# run the app
+> make run-app
+```
+
+### Run using Docker
+```bash
+> make run-app-docker
+```
+
+### Run Test
+```bash
+> make test
 ```

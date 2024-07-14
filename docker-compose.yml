@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    networks:
+      - my_network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      PORT: 8000
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB_NAME: postgres
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - 8000:8000
+    command: >
+      sh -c "migrate -database 'postgres://postgres:password@postgres:5432/postgres?sslmode=disable' -path /migrations up && ./server"
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    driver: bridge
