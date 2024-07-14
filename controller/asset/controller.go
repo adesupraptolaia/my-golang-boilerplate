@@ -67,7 +67,12 @@ func (ctrl *Controller) GetAllAssets(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, ResponseSuccess(assets))
+	var response = make([]AssetResponse, len(assets))
+	for i, val := range assets {
+		response[i] = convertToAssetResponse(val)
+	}
+
+	c.JSON(http.StatusOK, ResponseSuccess(response))
 }
 
 func (ctrl *Controller) GetAssetByID(c *gin.Context) {
@@ -80,9 +85,10 @@ func (ctrl *Controller) GetAssetByID(c *gin.Context) {
 	if err != nil {
 		log.Println(logPrefix+"error when get asset by id:"+ID, "err: ", err)
 		c.JSON(http.StatusInternalServerError, ResponseError(err))
+		return
 	}
 
-	c.JSON(http.StatusOK, ResponseSuccess(asset))
+	c.JSON(http.StatusOK, ResponseSuccess(convertToAssetResponse(*asset)))
 }
 
 func (ctrl *Controller) UpdateAsset(c *gin.Context) {
