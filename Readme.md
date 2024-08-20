@@ -1,6 +1,21 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-Simple Rest API to manage asset
+My Golang Boilerplate, using hexagonal architecture.
+
+### Structure
+
+```
+┣ .vscode/                      // VScode debug launcher
+┣ config/
+┣ controller/
+┃   ┗ shipment/
+┣ config/
+┗ service/                     // Business domain code
+  ┣ asset/
+  ┃ ┗ mocks/
+  ┗ user/
+```
+
 
 
 ### Prerequisites
